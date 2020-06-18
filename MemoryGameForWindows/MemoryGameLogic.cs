@@ -9,6 +9,7 @@ namespace MemoryGameForWindows
 {
     internal class MemoryGameLogic
     {
+        public event Action<Point, Point> FoundPair;
         private const int k_QuantityFromEachObj = 2;
         private const int k_MinNumberRowInput = 4;
         private const int k_MinNumberColInput = 4;
@@ -18,12 +19,114 @@ namespace MemoryGameForWindows
         private Dictionary<int, char> m_LettersDictionary;
         private Board m_BoardGame;
         private Random m_Rand = new Random();
+        private User m_FirstPlayer;
+        private User m_SecondPlayer;
+        private User m_CurrPlayer;
 
-
-        public MemoryGameLogic(int i_RowSize, int i_ColSize)
+        public MemoryGameLogic(int i_RowSize, int i_ColSize, string i_FirstPlayerName, string i_SecondPlayerName)
         {
             m_BoardGame = new Board(i_RowSize, i_ColSize);
+            m_FirstPlayer = new User(i_FirstPlayerName);
+            m_SecondPlayer = new User(i_SecondPlayerName);
+            m_CurrPlayer = m_FirstPlayer;
+            createMemoryBoardGame();
         }
+
+        public uint Player1Score
+        {
+            get
+            {
+                return m_FirstPlayer.Points;
+            }
+        }
+
+        public uint Player2Score
+        {
+            get
+            {
+                return m_SecondPlayer.Points;
+            }
+        }
+
+        public User CurrPlayer
+        {
+            get
+            {
+                return m_CurrPlayer;
+            }
+        }
+
+        public void startGameAgainsOtherPlayer()
+        {
+            User currPlayer = m_FirstPlayer;
+            while(m_LeftUndiscoveredObjs > 0)
+            {
+
+            }
+        }
+
+        public bool IsSameObject(User i_CurrPlayer, Point i_FirstChoose, Point i_SecondChoose )
+        {
+            bool isSameObject = false;
+            if(m_BoardGame.IsSameObject(i_FirstChoose.X,i_FirstChoose.Y,i_SecondChoose.X,i_SecondChoose.Y))
+            {
+                i_CurrPlayer.IncrementPoints();
+                m_BoardGame.MakeCellUnAvailable(i_FirstChoose.X, i_FirstChoose.Y);
+                m_BoardGame.MakeCellUnAvailable(i_SecondChoose.X, i_SecondChoose.Y);
+                FoundPair.Invoke(i_FirstChoose,i_SecondChoose);
+                isSameObject = true;
+            }
+            return isSameObject;
+        }
+
+        public string FirstPlayerName
+        {
+            get
+            {
+                return m_FirstPlayer.Name;
+            }
+        }
+
+        public string SecondPlayerName
+        {
+            get
+            {
+                return m_SecondPlayer.Name;
+            }
+        }
+
+        public Dictionary<int, char> LetterDictionary
+        {
+            get
+            {
+                return m_LettersDictionary;
+            }
+        }
+
+        public Board BoardGame
+        {
+            get
+            {
+                return m_BoardGame;
+            }
+        }
+
+        public int BoardRows
+        {
+            get
+            {
+                return m_BoardGame.NumOfRows;
+            }
+        }
+
+        public int BoardCols
+        {
+            get
+            {
+                return m_BoardGame.NumOfCols;
+            }
+        }
+
         private void initLettersDictionary()
         {
             m_LettersDictionary = new Dictionary<int, char>();
@@ -32,6 +135,7 @@ namespace MemoryGameForWindows
                 m_LettersDictionary.Add(i, (char)('A' + i));
             }
         }
+
 
         public static List<Point> GetPossibleBoardSize()
         {
@@ -92,6 +196,8 @@ namespace MemoryGameForWindows
             io_List[i_Index1] = io_List[i_Index2];
             io_List[i_Index2] = temp;
         }
+
+
 
         private void decrementUndiscoveredCells()
         {

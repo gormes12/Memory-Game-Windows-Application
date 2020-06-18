@@ -10,8 +10,9 @@ namespace MemoryGameForWindows
     {
         public static void Main()
         {
-            SettingForm form = new SettingForm();
-            form.ShowDialog();
+            GameForm gameForm = new GameForm();
+            gameForm.ShowDialog();
+           
         }
     }
 }
