@@ -40,10 +40,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Board.cs" />
+    <Compile Include="MemoryGameLogic.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="SettingForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="GameForm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

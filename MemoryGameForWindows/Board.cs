@@ -11,6 +11,7 @@ namespace MemoryGameForWindows
         private readonly int r_Rows;
         private readonly int r_Cols;
         private readonly Cell[,] r_BoardGame;
+        
 
         public Board(int i_NumOfRows, int i_NumOfCols) // c'tor
         {
