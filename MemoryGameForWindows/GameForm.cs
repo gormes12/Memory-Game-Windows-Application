@@ -28,6 +28,7 @@ namespace MemoryGameForWindows
             m_SettingForm = new SettingForm();
             if(m_SettingForm.ShowDialog() == DialogResult.OK)
             {
+                m_IsFirstClick = true;
                 Point boardSize = m_SettingForm.BoardSize;
                 m_GameLogic = new MemoryGameLogic(
                                                  boardSize.X, boardSize.Y,
@@ -47,7 +48,7 @@ namespace MemoryGameForWindows
 
         private void M_GameLogic_FoundPair(Point i_Cell1, Point i_Cell2)
         {
-            makeVisible(i_Cell1,i_Cell2);
+            makeUnclickable(i_Cell1,i_Cell2);
         }
 
         private void startGame()
@@ -144,10 +145,11 @@ namespace MemoryGameForWindows
             else
             {
                 m_IsFirstClick = true;
+                //makeVisible(new Point(i_CurrRow, i_CurrCol));
                 m_BoardButtons[i_CurrRow, i_CurrCol].Text = m_BoardButtons[i_CurrRow, i_CurrCol].CellText;
                 m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = labelCurrentPlayer.BackColor;
 
-                if(!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, new Point(i_CurrRow, i_CurrCol)))
+                if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, new Point(i_CurrRow, i_CurrCol)))
                 {
                     m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
                     m_BoardButtons[i_CurrRow, i_CurrCol].Text = "";
@@ -160,7 +162,13 @@ namespace MemoryGameForWindows
         }
 
 
-        private void makeVisible(Point i_FirstCell, Point i_SecondCell)
+        private void makeVisible(Point i_Cell)
+        {
+            m_BoardButtons[i_Cell.X, i_Cell.Y].Text = m_BoardButtons[i_Cell.X, i_Cell.Y].CellText;
+            m_BoardButtons[i_Cell.X, i_Cell.Y].BackColor = labelCurrentPlayer.BackColor;
+        }
+
+        private void makeUnclickable(Point i_FirstCell, Point i_SecondCell)
         {
             //m_BoardButtons[i_FirstCell.X, i_FirstCell.Y].Text = m_BoardButtons[i_FirstCell.X, i_FirstCell.Y].CellText;
             //m_BoardButtons[i_SecondCell.X, i_SecondCell.Y].Text = m_BoardButtons[i_SecondCell.X, i_SecondCell.Y].CellText;
