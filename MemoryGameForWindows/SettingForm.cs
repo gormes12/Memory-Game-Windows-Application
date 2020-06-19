@@ -33,7 +33,7 @@ namespace MemoryGameForWindows
         {
             get
             {
-                if(textBoxFriend.Text == "- computer -")
+                if(buttonOpponent.Text == "Against a Friend")
                 {
                     return eOpponent.Computer;
                 }

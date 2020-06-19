@@ -49,13 +49,11 @@ namespace MemoryGameForWindows
         private void restartGame()
         {
             Point boardSize = m_SettingForm.BoardSize;
-            m_IsFirstClick = true;
             m_GameLogic = new MemoryGameLogic(
                                              boardSize.X,
                                              boardSize.Y,
                                              m_SettingForm.FirstPlayerName,
                                              m_SettingForm.SecondPlayerName);
-            //m_BoardButtons = new MemoryBoardButton[boardSize.X, boardSize.Y];
             m_GameLogic.SwitchTurn += M_GameLogic_SwitchTurn;
             m_GameLogic.FoundPair += M_GameLogic_FoundPair;
             m_GameLogic.EndGame += M_GameLogic_EndGame;
@@ -66,7 +64,7 @@ namespace MemoryGameForWindows
 
         private void M_GameLogic_EndGame(string i_EndGameMessage)
         {
-            if(MessageBox.Show(i_EndGameMessage, "Gave Over",MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if(MessageBox.Show(i_EndGameMessage, "Game Over",MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 restartGame();
             }
@@ -74,7 +72,6 @@ namespace MemoryGameForWindows
             {
                 this.Close();
             }
-
         }
 
         private void M_GameLogic_FoundPair()
@@ -96,24 +93,42 @@ namespace MemoryGameForWindows
 
         private void startGame()
         {
-           if(m_SettingForm.Opponent == eOpponent.Computer)
-            {
-                startGameAgainsComputer();
-            }
-           else
-            {
-                startGameAgainstOtherPlayer();
-            }
-        }
-
-        private void startGameAgainstOtherPlayer()
-        {
             m_CurrUser = m_GameLogic.CurrPlayer;
             labelCurrentPlayer.Text = string.Format("Current Player: {0}", m_CurrUser.Name);
             labelCurrentPlayer.BackColor = m_SettingForm.FirstPlayerName == m_CurrUser.Name ?
                 labelFirstPlayerRes.BackColor : labelSecondPlayerRes.BackColor;
 
+            if (m_SettingForm.Opponent == eOpponent.Computer)
+            {
+                m_GameLogic.StartGameAgainsComputer();
+                m_GameLogic.ComputerMove += M_GameLogic_ComputerMove;
+                m_GameLogic.ComputerNotFoundPair += M_GameLogic_ComputerNotFoundPair;
+            }
+            //else
+            // {
+            //     startGameAgainstOtherPlayer();
+            // }
         }
+
+        private void M_GameLogic_ComputerNotFoundPair(Point i_ComputerMove)
+        {
+            m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].Text = "";
+            m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].BackColor = DefaultBackColor;
+            m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].Enabled = true;
+        }
+
+        private void M_GameLogic_ComputerMove(Point i_ComputerMove)
+        {
+            makeVisibleAndUnClickable(i_ComputerMove.X, i_ComputerMove.Y);
+        }
+
+        //private void startGameAgainstOtherPlayer()
+        //{
+        //    m_CurrUser = m_GameLogic.CurrPlayer;
+        //    labelCurrentPlayer.Text = string.Format("Current Player: {0}", m_CurrUser.Name);
+        //    labelCurrentPlayer.BackColor = m_SettingForm.FirstPlayerName == m_CurrUser.Name ?
+        //        labelFirstPlayerRes.BackColor : labelSecondPlayerRes.BackColor;
+        //}
 
         private void switchTurns(User i_CurrUser)
         {
@@ -123,10 +138,10 @@ namespace MemoryGameForWindows
                 labelFirstPlayerRes.BackColor : labelSecondPlayerRes.BackColor;
         }
 
-        private void startGameAgainsComputer()
-        {
+        //private void startGameAgainsComputer()
+        //{
             
-        }
+        //}
 
         private void initializeLebels()
         {
@@ -156,7 +171,6 @@ namespace MemoryGameForWindows
             m_BoardButtons[0, 0].Size = buttonFirstOnBoard.Size;
             m_BoardButtons[0, 0].BackColor = buttonFirstOnBoard.BackColor;
             m_BoardButtons[0, 0].Enabled = true;
-
             this.Controls.Remove(buttonFirstOnBoard);
             for (int i = 0; i < boardRow; i++)
             {
@@ -171,6 +185,7 @@ namespace MemoryGameForWindows
                                 m_BoardButtons[i, j] = new MemoryBoardButton(i, j/*, currChar.ToString()*/);
                                 
                             }
+
                             m_BoardButtons[i, j].ColIndex = j;
                             m_BoardButtons[i, j].RowIndex = i;
                             if (j != 0)
@@ -203,7 +218,6 @@ namespace MemoryGameForWindows
             if (m_IsFirstClick)
             {
                 m_FirstBoardClick = new Point(i_CurrRow, i_CurrCol);
-                //m_GameLogic.PlayerFirstChoose(i_CurrRow, i_CurrCol);
             }
             else
             {
@@ -216,6 +230,18 @@ namespace MemoryGameForWindows
                     m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
                     m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = true;
                     m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Enabled = true;
+                    System.Threading.Thread.Sleep(1000);
+                    if (m_SettingForm.Opponent == eOpponent.Computer)
+                    {
+
+                        m_GameLogic.MakeComputerMove();
+                    }
+                }
+                else
+                {
+                    m_BoardButtons[i_CurrRow, i_CurrCol].BoardButtonClicked -= buttonBoard_Clicked;
+                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
+                    System.Threading.Thread.Sleep(1000);
 
                 }
             }
@@ -230,16 +256,12 @@ namespace MemoryGameForWindows
             m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = labelCurrentPlayer.BackColor;
             m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = false;
         }
+        //private void makeUnclickable(Point i_FirstCell, Point i_SecondCell)
+        //{
+            
+        //    m_BoardButtons[i_FirstCell.X, i_FirstCell.Y].Enabled = false;
+        //    m_BoardButtons[i_SecondCell.X, i_SecondCell.Y].Enabled = false;
 
-        private void makeUnclickable(Point i_FirstCell, Point i_SecondCell)
-        {
-            //m_BoardButtons[i_FirstCell.X, i_FirstCell.Y].Text = m_BoardButtons[i_FirstCell.X, i_FirstCell.Y].CellText;
-            //m_BoardButtons[i_SecondCell.X, i_SecondCell.Y].Text = m_BoardButtons[i_SecondCell.X, i_SecondCell.Y].CellText;
-            m_BoardButtons[i_FirstCell.X, i_FirstCell.Y].Enabled = false;
-            m_BoardButtons[i_SecondCell.X, i_SecondCell.Y].Enabled = false;
-
-        }
-
-
+        //}
     }
 }

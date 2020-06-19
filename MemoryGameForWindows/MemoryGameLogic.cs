@@ -12,21 +12,27 @@ namespace MemoryGameForWindows
         public event Action<User> SwitchTurn;
         public event Action FoundPair;
         public event Action<string> EndGame;
+        public event Action<Point> ComputerMove;
+        public event Action<Point> ComputerNotFoundPair;
         private const int k_QuantityFromEachObj = 2;
-        private const int k_MinNumberRowInput = 4;
-        private const int k_MinNumberColInput = 4;
+        private const int k_MinNumberRowInput = 2;
+        private const int k_MinNumberColInput = 3;
         private const int k_MaxNumberRowInput = 6;
         private const int k_MaxNumberColInput = 6;
         private int m_LeftUndiscoveredObjs;
+        List<int> m_UnDiscoveredCells;
         private Dictionary<int, char> m_LettersDictionary;
         private Board m_BoardGame;
-        private Random m_Rand = new Random();
+        private Random m_Rand;
+        private User m_CurrPlayer;
         private User m_FirstPlayer;
         private User m_SecondPlayer;
-        private User m_CurrPlayer;
+        private Point m_FirstChoose;
+        private Point m_SecondChoose;
 
         public MemoryGameLogic(int i_RowSize, int i_ColSize, string i_FirstPlayerName, string i_SecondPlayerName)
         {
+            m_Rand = new Random();
             m_BoardGame = new Board(i_RowSize, i_ColSize);
             m_FirstPlayer = new User(i_FirstPlayerName);
             m_SecondPlayer = new User(i_SecondPlayerName);
@@ -58,29 +64,83 @@ namespace MemoryGameForWindows
             }
         }
 
-        public void startGameAgainsOtherPlayer()
+        public void StartGameAgainsComputer()
         {
-            User currPlayer = m_FirstPlayer;
-            while(m_LeftUndiscoveredObjs > 0)
-            {
-
-            }
+            m_UnDiscoveredCells = new List<int>(Enumerable.Range(0, m_BoardGame.NumOfRows * m_BoardGame.NumOfCols));
         }
 
-        public bool IsSameObject(User i_CurrPlayer, Point i_FirstChoose, Point i_SecondChoose )
+        public void MakeComputerMove()
         {
+            bool isFirstChoose = true;
+            //int convertToUnDiscoveredCellIndex;
+            do
+            {
+                ComputerChooseCell(isFirstChoose);
+                System.Threading.Thread.Sleep(1000);
+                ComputerChooseCell(!isFirstChoose);
+                System.Threading.Thread.Sleep(1000);
+
+                //  if (IsSameObject(m_CurrPlayer, m_FirstChoose, m_SecondChoose))
+                // {
+                //if (m_BoardGame.IsSameObject(m_FirstChoose.X, m_FirstChoose.Y, m_SecondChoose.X, m_SecondChoose.Y))
+                //{
+                //    convertToUnDiscoveredCellIndex = (m_FirstChoose.X * m_BoardGame.NumOfCols) + m_FirstChoose.Y;
+                //    m_UnDiscoveredCells.Remove(convertToUnDiscoveredCellIndex);
+                //    convertToUnDiscoveredCellIndex = (m_SecondChoose.X * m_BoardGame.NumOfCols) + m_SecondChoose.Y;
+                //    m_UnDiscoveredCells.Remove(convertToUnDiscoveredCellIndex);
+                //    m_CurrPlayer.IncrementPoints();
+                //    m_BoardGame.MakeCellUnAvailable(m_FirstChoose.X, m_FirstChoose.Y);
+                //    m_BoardGame.MakeCellUnAvailable(m_SecondChoose.X,m_SecondChoose.Y);
+                //    decrementUndiscoveredCells();
+
+                //    if (m_LeftUndiscoveredObjs == 0)
+                //    {
+                //        OnEndGame();
+                //    }
+
+                //MakeComputerMove();
+                //  }
+            }
+            while (IsSameObject(m_CurrPlayer, m_FirstChoose, m_SecondChoose));
+            //else
+            //{
+            ComputerNotFoundPair.Invoke(m_FirstChoose);
+            ComputerNotFoundPair.Invoke(m_SecondChoose);
+            //OnSwitchTurns();
+            //}
+
+
+        }
+
+        public bool IsSameObject(User i_CurrPlayer, Point i_FirstChoose, Point i_SecondChoose)
+        {
+            int convertToUnDiscoveredCellIndex;
             bool isSameObject = false;
-            if(m_BoardGame.IsSameObject(i_FirstChoose.X,i_FirstChoose.Y,i_SecondChoose.X,i_SecondChoose.Y))
+            m_FirstChoose = i_FirstChoose;
+            m_SecondChoose = i_SecondChoose;
+
+            if (m_BoardGame.IsSameObject(i_FirstChoose.X, i_FirstChoose.Y, i_SecondChoose.X, i_SecondChoose.Y))
             {
                 i_CurrPlayer.IncrementPoints();
                 m_BoardGame.MakeCellUnAvailable(i_FirstChoose.X, i_FirstChoose.Y);
                 m_BoardGame.MakeCellUnAvailable(i_SecondChoose.X, i_SecondChoose.Y);
                 FoundPair.Invoke();
-                isSameObject = true;
                 decrementUndiscoveredCells();
-                if(m_LeftUndiscoveredObjs == 0)
+                if (m_UnDiscoveredCells != null)
+                {
+                    convertToUnDiscoveredCellIndex = (m_FirstChoose.X * m_BoardGame.NumOfCols) + m_FirstChoose.Y;
+                    m_UnDiscoveredCells.Remove(convertToUnDiscoveredCellIndex);
+                    convertToUnDiscoveredCellIndex = (m_SecondChoose.X * m_BoardGame.NumOfCols) + m_SecondChoose.Y;
+                    m_UnDiscoveredCells.Remove(convertToUnDiscoveredCellIndex);
+                }
+
+                if (m_LeftUndiscoveredObjs == 0)
                 {
                     OnEndGame();
+                }
+                else
+                {
+                    isSameObject = true;
                 }
             }
             else
@@ -269,13 +329,25 @@ namespace MemoryGameForWindows
             m_BoardGame.MakeCellUnAvailable(i_ChoosenRow, i_ChooseCol);
         }
 
-        public void ComputerChooseCell(List<int> i_UnDiscoveredCells, out int o_ChoosenRow, out int o_ChooseCol)
+        public void ComputerChooseCell(bool i_IsFirstChoose)
         {
-            int randCell = m_Rand.Next(0, i_UnDiscoveredCells.Count);
+            int randCell = m_Rand.Next(0, m_UnDiscoveredCells.Count);
+            int choosenRow = m_UnDiscoveredCells[randCell] / m_BoardGame.NumOfCols;
+            int chooseCol = m_UnDiscoveredCells[randCell] % m_BoardGame.NumOfCols;
+            Point choose = new Point(choosenRow, chooseCol);
 
-            o_ChoosenRow = i_UnDiscoveredCells[randCell] / m_BoardGame.NumOfCols;
-            o_ChooseCol = i_UnDiscoveredCells[randCell] % m_BoardGame.NumOfCols;
-            m_BoardGame.MakeCellUnAvailable(o_ChoosenRow, o_ChooseCol);
+            if (i_IsFirstChoose)
+            {
+                m_FirstChoose = choose;
+            }
+            else
+            {
+                m_SecondChoose = choose;
+            }
+
+            ComputerMove.Invoke(choose);
+
+            //m_BoardGame.MakeCellUnAvailable(choosenRow, chooseCol);
         }
     }
 }
