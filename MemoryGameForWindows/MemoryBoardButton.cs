@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace MemoryGameForWindows
 {
@@ -13,6 +14,13 @@ namespace MemoryGameForWindows
         private int m_ColIndex;
         private string m_CellText;
 
+
+        public MemoryBoardButton(int i_RowIndex, int i_ColIndex/*, string i_CellText*/)
+        {
+            m_RowIndex = i_RowIndex;
+            m_ColIndex = i_ColIndex;
+            //m_CellText = i_CellText;
+        }
         public string CellText
         {
             get
@@ -54,7 +62,10 @@ namespace MemoryGameForWindows
         protected override void OnClick(EventArgs e)
         {
             base.OnClick(e);
-            BoardButtonClicked(m_RowIndex, m_ColIndex);
+            if (BoardButtonClicked != null)
+            {
+                BoardButtonClicked(m_RowIndex, m_ColIndex);
+            }
         }
     }
 }

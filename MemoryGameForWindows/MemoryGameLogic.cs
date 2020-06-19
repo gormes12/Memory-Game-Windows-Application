@@ -9,7 +9,9 @@ namespace MemoryGameForWindows
 {
     internal class MemoryGameLogic
     {
-        public event Action<Point, Point> FoundPair;
+        public event Action<User> SwitchTurn;
+        public event Action FoundPair;
+        public event Action<string> EndGame;
         private const int k_QuantityFromEachObj = 2;
         private const int k_MinNumberRowInput = 4;
         private const int k_MinNumberColInput = 4;
@@ -73,10 +75,66 @@ namespace MemoryGameForWindows
                 i_CurrPlayer.IncrementPoints();
                 m_BoardGame.MakeCellUnAvailable(i_FirstChoose.X, i_FirstChoose.Y);
                 m_BoardGame.MakeCellUnAvailable(i_SecondChoose.X, i_SecondChoose.Y);
-                FoundPair.Invoke(i_FirstChoose,i_SecondChoose);
+                FoundPair.Invoke();
                 isSameObject = true;
+                decrementUndiscoveredCells();
+                if(m_LeftUndiscoveredObjs == 0)
+                {
+                    OnEndGame();
+                }
             }
+            else
+            {
+                OnSwitchTurns();
+            }
+
             return isSameObject;
+        }
+
+        private void OnEndGame()
+        {
+            StringBuilder msg = new StringBuilder();
+            User winner, loser;
+            if (m_FirstPlayer.Points != m_SecondPlayer.Points)
+            {
+                winner = m_FirstPlayer.Points > m_SecondPlayer.Points ? m_FirstPlayer : m_SecondPlayer;
+                loser = m_FirstPlayer == winner ? m_SecondPlayer : m_FirstPlayer;
+                msg.Append(string.Format(
+@"The winner is {0}!.
+{0} has {1} points while {2} has {3} points{4}",
+                                            winner.Name,
+                                            winner.Points,
+                                            loser.Name,
+                                            loser.Points,
+                                            Environment.NewLine));
+            }
+            else
+            {
+                msg.Append(string.Format("It's a tie! both players got {0} points!{1}", m_SecondPlayer.Points, Environment.NewLine));
+            }
+            msg.Append("Would you like to start a new game?");
+            EndGame(msg.ToString());
+        }
+
+        private void OnSwitchTurns()
+        {
+            if (m_CurrPlayer == m_FirstPlayer)
+            {
+                m_CurrPlayer = m_SecondPlayer;
+            }
+            else
+            {
+                m_CurrPlayer = m_FirstPlayer;
+            }
+
+            SwitchTurn(m_CurrPlayer);
+        }
+
+        private void swapValue<T>(ref T i_Index1, ref T i_Index2)
+        {
+            T temp = i_Index1;
+            i_Index1 = i_Index2;
+            i_Index2 = temp;
         }
 
         public string FirstPlayerName
@@ -135,7 +193,6 @@ namespace MemoryGameForWindows
                 m_LettersDictionary.Add(i, (char)('A' + i));
             }
         }
-
 
         public static List<Point> GetPossibleBoardSize()
         {
@@ -197,14 +254,12 @@ namespace MemoryGameForWindows
             io_List[i_Index2] = temp;
         }
 
-
-
-        private void decrementUndiscoveredCells()
+       private void decrementUndiscoveredCells()
         {
             m_LeftUndiscoveredObjs -= k_QuantityFromEachObj;
         }
 
-        public void PlayerChooseCell(int i_ChoosenRow, int i_ChooseCol)
+        public void PlayerFirstChoose(int i_ChoosenRow, int i_ChooseCol)
         {
             if(!m_BoardGame.BoardGame[i_ChoosenRow, i_ChooseCol].IsAvailable)
             {

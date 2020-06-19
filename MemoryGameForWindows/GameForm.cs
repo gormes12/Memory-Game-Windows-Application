@@ -12,15 +12,12 @@ namespace MemoryGameForWindows
 {
     public partial class GameForm : Form
     {
+        private bool m_IsFirstClick;
         private MemoryGameLogic m_GameLogic;
         private SettingForm m_SettingForm;
         private MemoryBoardButton[,] m_BoardButtons;
-        private bool m_IsFirstClick;
-        private int currRowClicked;
-        private int currColClicked;
         private Point m_FirstBoardClick;
         private User m_CurrUser;
-
 
         public GameForm()
         {
@@ -31,13 +28,16 @@ namespace MemoryGameForWindows
                 m_IsFirstClick = true;
                 Point boardSize = m_SettingForm.BoardSize;
                 m_GameLogic = new MemoryGameLogic(
-                                                 boardSize.X, boardSize.Y,
+                                                 boardSize.X,
+                                                 boardSize.Y,
                                                  m_SettingForm.FirstPlayerName,
                                                  m_SettingForm.SecondPlayerName);
                 m_BoardButtons = new MemoryBoardButton[boardSize.X, boardSize.Y];
+                m_GameLogic.SwitchTurn += M_GameLogic_SwitchTurn;
+                m_GameLogic.FoundPair += M_GameLogic_FoundPair;
+                m_GameLogic.EndGame += M_GameLogic_EndGame;
                 initializeBoard();
                 initializeLebels();
-                m_GameLogic.FoundPair += M_GameLogic_FoundPair;
                 startGame();
             }
             else
@@ -46,9 +46,52 @@ namespace MemoryGameForWindows
             }
         }
 
-        private void M_GameLogic_FoundPair(Point i_Cell1, Point i_Cell2)
+        private void restartGame()
         {
-            makeUnclickable(i_Cell1,i_Cell2);
+            Point boardSize = m_SettingForm.BoardSize;
+            m_IsFirstClick = true;
+            m_GameLogic = new MemoryGameLogic(
+                                             boardSize.X,
+                                             boardSize.Y,
+                                             m_SettingForm.FirstPlayerName,
+                                             m_SettingForm.SecondPlayerName);
+            //m_BoardButtons = new MemoryBoardButton[boardSize.X, boardSize.Y];
+            m_GameLogic.SwitchTurn += M_GameLogic_SwitchTurn;
+            m_GameLogic.FoundPair += M_GameLogic_FoundPair;
+            m_GameLogic.EndGame += M_GameLogic_EndGame;
+            initializeBoard();
+            initializeLebels();
+            startGame();
+        }
+
+        private void M_GameLogic_EndGame(string i_EndGameMessage)
+        {
+            if(MessageBox.Show(i_EndGameMessage, "Gave Over",MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                restartGame();
+            }
+            else
+            {
+                this.Close();
+            }
+
+        }
+
+        private void M_GameLogic_FoundPair()
+        {
+            if(m_CurrUser.Name == m_SettingForm.FirstPlayerName)
+            {
+                labelFirstPlayerRes.Text = string.Format("{0}: {1} pairs", m_GameLogic.FirstPlayerName, m_CurrUser.Points);
+            }
+            else
+            {
+                labelSecondPlayerRes.Text = string.Format("{0}: {1} pairs", m_GameLogic.SecondPlayerName, m_CurrUser.Points);
+            }
+        }
+
+        private void M_GameLogic_SwitchTurn(User i_CurrUser)
+        {
+            switchTurns(i_CurrUser);
         }
 
         private void startGame()
@@ -72,6 +115,14 @@ namespace MemoryGameForWindows
 
         }
 
+        private void switchTurns(User i_CurrUser)
+        {
+            m_CurrUser = i_CurrUser;
+            labelCurrentPlayer.Text = string.Format("Current Player: {0}", m_CurrUser.Name);
+            labelCurrentPlayer.BackColor = m_SettingForm.FirstPlayerName == m_CurrUser.Name ?
+                labelFirstPlayerRes.BackColor : labelSecondPlayerRes.BackColor;
+        }
+
         private void startGameAgainsComputer()
         {
             
@@ -87,6 +138,7 @@ namespace MemoryGameForWindows
             this.ClientSize = new Size(m_BoardButtons[m_GameLogic.BoardRows - 1, m_GameLogic.BoardCols - 1].Right + 10, labelSecondPlayerRes.Top + labelSecondPlayerRes.Height + 3);
         }
 
+
         private void initializeBoard()
         {
             char currChar;
@@ -94,10 +146,17 @@ namespace MemoryGameForWindows
             int boardCol = m_GameLogic.BoardCols;
             Board boardGame = m_GameLogic.BoardGame;
             Dictionary<int, char> letterDictionary = m_GameLogic.LetterDictionary;
-            m_BoardButtons[0, 0] = new MemoryBoardButton();
+            if (m_BoardButtons[0, 0] == null)
+            {
+                m_BoardButtons[0, 0] = new MemoryBoardButton(0, 0/*, currChar.ToString()*/);
+            }
+
             m_BoardButtons[0, 0].Location = buttonFirstOnBoard.Location;
             m_BoardButtons[0, 0].Anchor = buttonFirstOnBoard.Anchor;
             m_BoardButtons[0, 0].Size = buttonFirstOnBoard.Size;
+            m_BoardButtons[0, 0].BackColor = buttonFirstOnBoard.BackColor;
+            m_BoardButtons[0, 0].Enabled = true;
+
             this.Controls.Remove(buttonFirstOnBoard);
             for (int i = 0; i < boardRow; i++)
             {
@@ -107,7 +166,11 @@ namespace MemoryGameForWindows
                     {
                         if (!(i == 0 && j == 0))
                         {
-                            m_BoardButtons[i, j] = new MemoryBoardButton();
+                            if (m_BoardButtons[i, j] == null)
+                            {
+                                m_BoardButtons[i, j] = new MemoryBoardButton(i, j/*, currChar.ToString()*/);
+                                
+                            }
                             m_BoardButtons[i, j].ColIndex = j;
                             m_BoardButtons[i, j].RowIndex = i;
                             if (j != 0)
@@ -119,7 +182,9 @@ namespace MemoryGameForWindows
                                 m_BoardButtons[i, j].Location = new Point(m_BoardButtons[i - 1, j].Left, m_BoardButtons[i - 1, j].Top + m_BoardButtons[i - 1, j].Height + 10);
                             }
 
-                            m_BoardButtons[i, j].Size = (m_BoardButtons[0, 0].Size);
+                            m_BoardButtons[i, j].Size = m_BoardButtons[0, 0].Size;
+                            m_BoardButtons[i, j].BackColor = m_BoardButtons[0, 0].BackColor;
+                            m_BoardButtons[i, j].Enabled = true;
                         }
 
                         this.Controls.Add(m_BoardButtons[i, j]);
@@ -133,39 +198,37 @@ namespace MemoryGameForWindows
 
         private void buttonBoard_Clicked(int i_CurrRow, int i_CurrCol)
         {
-           // currRowClicked = i_currRow;
-            //currColClicked = i_currCol;
-            if(m_IsFirstClick)
+            makeVisibleAndUnClickable(i_CurrRow, i_CurrCol);
+
+            if (m_IsFirstClick)
             {
-                m_IsFirstClick = false;
                 m_FirstBoardClick = new Point(i_CurrRow, i_CurrCol);
-                m_BoardButtons[i_CurrRow, i_CurrCol].Text = m_BoardButtons[i_CurrRow, i_CurrCol].CellText;
-                m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = labelCurrentPlayer.BackColor;
+                //m_GameLogic.PlayerFirstChoose(i_CurrRow, i_CurrCol);
             }
             else
             {
-                m_IsFirstClick = true;
-                //makeVisible(new Point(i_CurrRow, i_CurrCol));
-                m_BoardButtons[i_CurrRow, i_CurrCol].Text = m_BoardButtons[i_CurrRow, i_CurrCol].CellText;
-                m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = labelCurrentPlayer.BackColor;
-
+                System.Threading.Thread.Sleep(1000);
                 if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, new Point(i_CurrRow, i_CurrCol)))
                 {
-                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
                     m_BoardButtons[i_CurrRow, i_CurrCol].Text = "";
-                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
+                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
                     m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = DefaultBackColor;
+                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
+                    m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = true;
+                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Enabled = true;
+
                 }
-               
             }
 
+            m_IsFirstClick = !m_IsFirstClick;
         }
 
 
-        private void makeVisible(Point i_Cell)
+        private void makeVisibleAndUnClickable(int i_CurrRow, int i_CurrCol)
         {
-            m_BoardButtons[i_Cell.X, i_Cell.Y].Text = m_BoardButtons[i_Cell.X, i_Cell.Y].CellText;
-            m_BoardButtons[i_Cell.X, i_Cell.Y].BackColor = labelCurrentPlayer.BackColor;
+            m_BoardButtons[i_CurrRow, i_CurrCol].Text = m_BoardButtons[i_CurrRow, i_CurrCol].CellText;
+            m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = labelCurrentPlayer.BackColor;
+            m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = false;
         }
 
         private void makeUnclickable(Point i_FirstCell, Point i_SecondCell)
