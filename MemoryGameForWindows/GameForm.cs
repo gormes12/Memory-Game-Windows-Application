@@ -53,10 +53,17 @@ namespace MemoryGameForWindows
                                              boardSize.X,
                                              boardSize.Y,
                                              m_SettingForm.FirstPlayerName,
-                                             m_SettingForm.SecondPlayerName);
+                                             m_SettingForm.SecondPlayerName);                                    
             m_GameLogic.SwitchTurn += M_GameLogic_SwitchTurn;
             m_GameLogic.FoundPair += M_GameLogic_FoundPair;
             m_GameLogic.EndGame += M_GameLogic_EndGame;
+            for (int i = 0; i < m_GameLogic.BoardRows; i++)
+            {
+                for (int j = 0; j < m_GameLogic.BoardCols; j++)
+                {
+                    m_BoardButtons[i, j].BoardButtonClicked -= buttonBoard_Clicked;
+                }
+            }
             initializeBoard();
             initializeLebels();
             startGame();
@@ -233,7 +240,6 @@ namespace MemoryGameForWindows
                     System.Threading.Thread.Sleep(1000);
                     if (m_SettingForm.Opponent == eOpponent.Computer)
                     {
-
                         m_GameLogic.MakeComputerMove();
                     }
                 }
@@ -241,7 +247,7 @@ namespace MemoryGameForWindows
                 {
                     m_BoardButtons[i_CurrRow, i_CurrCol].BoardButtonClicked -= buttonBoard_Clicked;
                     m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
-                    System.Threading.Thread.Sleep(1000);
+                    //System.Threading.Thread.Sleep(1000);
 
                 }
             }
