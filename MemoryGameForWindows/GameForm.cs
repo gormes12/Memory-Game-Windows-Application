@@ -17,6 +17,7 @@ namespace MemoryGameForWindows
         private SettingForm m_SettingForm;
         private MemoryBoardButton[,] m_BoardButtons;
         private Point m_FirstBoardClick;
+        private Point m_SecondBoardClick;
         private User m_CurrUser;
 
         public GameForm()
@@ -127,6 +128,7 @@ namespace MemoryGameForWindows
         private void M_GameLogic_ComputerMove(Point i_ComputerMove)
         {
             makeVisibleAndUnClickable(i_ComputerMove.X, i_ComputerMove.Y);
+             System.Threading.Thread.Sleep(1000);
         }
 
         //private void startGameAgainstOtherPlayer()
@@ -174,6 +176,7 @@ namespace MemoryGameForWindows
             }
 
             m_BoardButtons[0, 0].Location = buttonFirstOnBoard.Location;
+            m_BoardButtons[0, 0].TabStop = false;
             m_BoardButtons[0, 0].Anchor = buttonFirstOnBoard.Anchor;
             m_BoardButtons[0, 0].Size = buttonFirstOnBoard.Size;
             m_BoardButtons[0, 0].BackColor = buttonFirstOnBoard.BackColor;
@@ -207,6 +210,7 @@ namespace MemoryGameForWindows
                             m_BoardButtons[i, j].Size = m_BoardButtons[0, 0].Size;
                             m_BoardButtons[i, j].BackColor = m_BoardButtons[0, 0].BackColor;
                             m_BoardButtons[i, j].Enabled = true;
+                            m_BoardButtons[i, j].TabStop = false;
                         }
 
                         this.Controls.Add(m_BoardButtons[i, j]);
@@ -217,41 +221,44 @@ namespace MemoryGameForWindows
                 }
             }
         }
+        
 
         private void buttonBoard_Clicked(int i_CurrRow, int i_CurrCol)
         {
+            if (timerShowCards.Enabled == false)
+            {
             makeVisibleAndUnClickable(i_CurrRow, i_CurrCol);
-
-            if (m_IsFirstClick)
-            {
-                m_FirstBoardClick = new Point(i_CurrRow, i_CurrCol);
-            }
-            else
-            {
-                System.Threading.Thread.Sleep(1000);
-                if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, new Point(i_CurrRow, i_CurrCol)))
+                if (m_IsFirstClick)
                 {
-                    m_BoardButtons[i_CurrRow, i_CurrCol].Text = "";
-                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
-                    m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = DefaultBackColor;
-                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
-                    m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = true;
-                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Enabled = true;
-                    if (m_SettingForm.Opponent == eOpponent.Computer)
-                    {
-                        m_GameLogic.MakeComputerMove();
-                    }
+                    m_FirstBoardClick = new Point(i_CurrRow, i_CurrCol);
                 }
                 else
                 {
-                    m_BoardButtons[i_CurrRow, i_CurrCol].BoardButtonClicked -= buttonBoard_Clicked;
-                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
-                    //System.Threading.Thread.Sleep(1000);
-
+                    m_SecondBoardClick = new Point(i_CurrRow, i_CurrCol);
+                    timerShowCards.Start();
+                    // System.Threading.Thread.Sleep(1000);
+                    //if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, new Point(i_CurrRow, i_CurrCol)))
+                    //{
+                    //    m_BoardButtons[i_CurrRow, i_CurrCol].Text = "";
+                    //    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
+                    //    m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = DefaultBackColor;
+                    //    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
+                    //    m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = true;
+                    //    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Enabled = true;
+                    //    if (m_SettingForm.Opponent == eOpponent.Computer)
+                    //    {
+                    //        m_GameLogic.MakeComputerMove();
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    m_BoardButtons[i_CurrRow, i_CurrCol].BoardButtonClicked -= buttonBoard_Clicked;
+                    //    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
+                    //    //System.Threading.Thread.Sleep(1000);
+                    //}
                 }
+                m_IsFirstClick = !m_IsFirstClick;
             }
-
-            m_IsFirstClick = !m_IsFirstClick;
         }
 
 
@@ -261,12 +268,36 @@ namespace MemoryGameForWindows
             m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = labelCurrentPlayer.BackColor;
             m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = false;
         }
+
         //private void makeUnclickable(Point i_FirstCell, Point i_SecondCell)
         //{
-            
+
         //    m_BoardButtons[i_FirstCell.X, i_FirstCell.Y].Enabled = false;
         //    m_BoardButtons[i_SecondCell.X, i_SecondCell.Y].Enabled = false;
 
         //}
+        private void timerShowCard_Tick(object sender, EventArgs e)
+        {
+            timerShowCards.Stop();
+            if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, m_SecondBoardClick))
+            {
+                m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].Text = "";
+                m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
+                m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].BackColor = DefaultBackColor;
+                m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
+                m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].Enabled = true;
+                m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Enabled = true;
+                if (m_SettingForm.Opponent == eOpponent.Computer)
+                {
+                    m_GameLogic.MakeComputerMove();
+                }
+            }
+            else
+            {
+                m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
+                m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
+                //System.Threading.Thread.Sleep(1000);
+            }
+        }
     }
 }

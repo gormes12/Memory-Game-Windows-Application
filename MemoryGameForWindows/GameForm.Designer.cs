@@ -28,10 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.labelCurrentPlayer = new System.Windows.Forms.Label();
             this.labelSecondPlayerRes = new System.Windows.Forms.Label();
             this.labelFirstPlayerRes = new System.Windows.Forms.Label();
             this.buttonFirstOnBoard = new System.Windows.Forms.Button();
+            this.timerShowCards = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // labelCurrentPlayer
@@ -71,6 +73,11 @@
             this.buttonFirstOnBoard.TabIndex = 3;
             this.buttonFirstOnBoard.UseVisualStyleBackColor = true;
             // 
+            // timerShowCards
+            // 
+            this.timerShowCards.Interval = 750;
+            this.timerShowCards.Tick += new System.EventHandler(this.timerShowCard_Tick);
+            // 
             // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -96,5 +103,6 @@
         private System.Windows.Forms.Label labelSecondPlayerRes;
         private System.Windows.Forms.Label labelFirstPlayerRes;
         private System.Windows.Forms.Button buttonFirstOnBoard;
+        private System.Windows.Forms.Timer timerShowCards;
     }
 }

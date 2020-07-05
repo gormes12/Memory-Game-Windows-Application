@@ -72,13 +72,14 @@ namespace MemoryGameForWindows
         public void MakeComputerMove()
         {
             bool isFirstChoose = true;
+            int convertToUnDiscoveredCellIndex;
             //int convertToUnDiscoveredCellIndex;
             do
             {
                 ComputerChooseCell(isFirstChoose);
-                System.Threading.Thread.Sleep(1000);
+               // System.Threading.Thread.Sleep(1000);
                 ComputerChooseCell(!isFirstChoose);
-                System.Threading.Thread.Sleep(1000);
+                //System.Threading.Thread.Sleep(1000);
 
                 //  if (IsSameObject(m_CurrPlayer, m_FirstChoose, m_SecondChoose))
                 // {
@@ -106,6 +107,8 @@ namespace MemoryGameForWindows
             //{
             ComputerNotFoundPair.Invoke(m_FirstChoose);
             ComputerNotFoundPair.Invoke(m_SecondChoose);
+            convertToUnDiscoveredCellIndex = (m_FirstChoose.X * m_BoardGame.NumOfCols) + m_FirstChoose.Y;
+            m_UnDiscoveredCells.Add(convertToUnDiscoveredCellIndex);
             //OnSwitchTurns();
             //}
 
@@ -334,11 +337,14 @@ namespace MemoryGameForWindows
             int randCell = m_Rand.Next(0, m_UnDiscoveredCells.Count);
             int choosenRow = m_UnDiscoveredCells[randCell] / m_BoardGame.NumOfCols;
             int chooseCol = m_UnDiscoveredCells[randCell] % m_BoardGame.NumOfCols;
+            int convertToUnDiscoveredCellIndex;
             Point choose = new Point(choosenRow, chooseCol);
 
             if (i_IsFirstChoose)
             {
                 m_FirstChoose = choose;
+                convertToUnDiscoveredCellIndex = (choosenRow * m_BoardGame.NumOfCols) + chooseCol;
+                m_UnDiscoveredCells.Remove(convertToUnDiscoveredCellIndex);
             }
             else
             {
