@@ -237,7 +237,6 @@ namespace MemoryGameForWindows
                     m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
                     m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = true;
                     m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Enabled = true;
-                    System.Threading.Thread.Sleep(1000);
                     if (m_SettingForm.Opponent == eOpponent.Computer)
                     {
                         m_GameLogic.MakeComputerMove();
