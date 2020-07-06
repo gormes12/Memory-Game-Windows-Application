@@ -41,6 +41,14 @@ namespace MemoryGameForWindows
             createMemoryBoardGame();
         }
 
+        public int LeftUnDiscovered
+        {
+            get
+            {
+                return m_LeftUndiscoveredObjs;
+            }
+        }
+
         public bool IsGameEnded
         {
             get

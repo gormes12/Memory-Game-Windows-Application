@@ -279,6 +279,7 @@ namespace MemoryGameForWindows
         //}
         private void timerShowCard_Tick(object sender, EventArgs e)
         {
+            int leftUnDiscovered = m_GameLogic.LeftUnDiscovered;
             timerShowCards.Stop();
             if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, m_SecondBoardClick))
             {
@@ -294,7 +295,7 @@ namespace MemoryGameForWindows
             }
             else
             {
-                if (!m_GameLogic.IsGameEnded)
+                if (leftUnDiscovered > 2)
                 {
                     m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
                     m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
