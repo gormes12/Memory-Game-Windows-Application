@@ -232,6 +232,7 @@ namespace MemoryGameForWindows
                 {
                     m_FirstBoardClick = new Point(i_CurrRow, i_CurrCol);
                 }
+
                 else
                 {
                     m_SecondBoardClick = new Point(i_CurrRow, i_CurrCol);
@@ -281,22 +282,34 @@ namespace MemoryGameForWindows
             timerShowCards.Stop();
             if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, m_SecondBoardClick))
             {
+                timerSwitchTurn.Start();
                 m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].Text = "";
                 m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
                 m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].BackColor = DefaultBackColor;
                 m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
                 m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].Enabled = true;
                 m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Enabled = true;
-                if (m_SettingForm.Opponent == eOpponent.Computer)
-                {
-                    m_GameLogic.MakeComputerMove();
-                }
+                m_GameLogic.OnSwitchTurns();
+
             }
             else
             {
-                m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
-                m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
+                if (!m_GameLogic.IsGameEnded)
+                {
+                    m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
+                    m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BoardButtonClicked -= buttonBoard_Clicked;
+                }
                 //System.Threading.Thread.Sleep(1000);
+            }
+        }
+
+        private void timerSwitchTurn_Tick(object sender, EventArgs e)
+        {
+            timerSwitchTurn.Stop();
+            
+            if (m_SettingForm.Opponent == eOpponent.Computer)
+            {
+                m_GameLogic.MakeComputerMove();
             }
         }
     }

@@ -29,6 +29,7 @@ namespace MemoryGameForWindows
         private User m_SecondPlayer;
         private Point m_FirstChoose;
         private Point m_SecondChoose;
+        private bool m_IsGameEnded = false;
 
         public MemoryGameLogic(int i_RowSize, int i_ColSize, string i_FirstPlayerName, string i_SecondPlayerName)
         {
@@ -38,6 +39,14 @@ namespace MemoryGameForWindows
             m_SecondPlayer = new User(i_SecondPlayerName);
             m_CurrPlayer = m_FirstPlayer;
             createMemoryBoardGame();
+        }
+
+        public bool IsGameEnded
+        {
+            get
+            {
+                return m_IsGameEnded;
+            }
         }
 
         public uint Player1Score
@@ -76,6 +85,10 @@ namespace MemoryGameForWindows
             //int convertToUnDiscoveredCellIndex;
             do
             {
+                if(m_UnDiscoveredCells.Count ==0)
+                {
+                    break;
+                }
                 ComputerChooseCell(isFirstChoose);
                // System.Threading.Thread.Sleep(1000);
                 ComputerChooseCell(!isFirstChoose);
@@ -109,7 +122,7 @@ namespace MemoryGameForWindows
             ComputerNotFoundPair.Invoke(m_SecondChoose);
             convertToUnDiscoveredCellIndex = (m_FirstChoose.X * m_BoardGame.NumOfCols) + m_FirstChoose.Y;
             m_UnDiscoveredCells.Add(convertToUnDiscoveredCellIndex);
-            //OnSwitchTurns();
+            OnSwitchTurns();
             //}
 
 
@@ -139,17 +152,18 @@ namespace MemoryGameForWindows
 
                 if (m_LeftUndiscoveredObjs == 0)
                 {
+                    m_IsGameEnded = true;
                     OnEndGame();
                 }
-                else
-                {
+                
                     isSameObject = true;
-                }
+                
+
             }
-            else
-            {
-                OnSwitchTurns();
-            }
+            //else
+            //{
+            //    OnSwitchTurns();
+            //}
 
             return isSameObject;
         }
@@ -179,7 +193,7 @@ namespace MemoryGameForWindows
             EndGame(msg.ToString());
         }
 
-        private void OnSwitchTurns()
+        public void OnSwitchTurns()
         {
             if (m_CurrPlayer == m_FirstPlayer)
             {
@@ -189,8 +203,12 @@ namespace MemoryGameForWindows
             {
                 m_CurrPlayer = m_FirstPlayer;
             }
-
             SwitchTurn(m_CurrPlayer);
+            //if (m_CurrPlayer.Name == "- computer -")
+            //{
+            //    MakeComputerMove();
+            //}
+
         }
 
         private void swapValue<T>(ref T i_Index1, ref T i_Index2)

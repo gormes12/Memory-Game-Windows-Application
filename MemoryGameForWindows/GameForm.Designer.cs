@@ -34,6 +34,7 @@
             this.labelFirstPlayerRes = new System.Windows.Forms.Label();
             this.buttonFirstOnBoard = new System.Windows.Forms.Button();
             this.timerShowCards = new System.Windows.Forms.Timer(this.components);
+            this.timerSwitchTurn = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // labelCurrentPlayer
@@ -78,6 +79,11 @@
             this.timerShowCards.Interval = 750;
             this.timerShowCards.Tick += new System.EventHandler(this.timerShowCard_Tick);
             // 
+            // timerSwitchTurn
+            // 
+            this.timerSwitchTurn.Interval = 200;
+            this.timerSwitchTurn.Tick += new System.EventHandler(this.timerSwitchTurn_Tick);
+            // 
             // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -104,5 +110,6 @@
         private System.Windows.Forms.Label labelFirstPlayerRes;
         private System.Windows.Forms.Button buttonFirstOnBoard;
         private System.Windows.Forms.Timer timerShowCards;
+        private System.Windows.Forms.Timer timerSwitchTurn;
     }
 }
