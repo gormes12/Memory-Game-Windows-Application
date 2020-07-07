@@ -35,6 +35,8 @@
             this.buttonFirstOnBoard = new System.Windows.Forms.Button();
             this.timerShowCards = new System.Windows.Forms.Timer(this.components);
             this.timerSwitchTurn = new System.Windows.Forms.Timer(this.components);
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // labelCurrentPlayer
@@ -70,7 +72,7 @@
             // 
             this.buttonFirstOnBoard.Location = new System.Drawing.Point(15, 26);
             this.buttonFirstOnBoard.Name = "buttonFirstOnBoard";
-            this.buttonFirstOnBoard.Size = new System.Drawing.Size(67, 68);
+            this.buttonFirstOnBoard.Size = new System.Drawing.Size(100, 100);
             this.buttonFirstOnBoard.TabIndex = 3;
             this.buttonFirstOnBoard.UseVisualStyleBackColor = true;
             // 
@@ -84,11 +86,23 @@
             this.timerSwitchTurn.Interval = 200;
             this.timerSwitchTurn.Tick += new System.EventHandler(this.timerSwitchTurn_Tick);
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.pictureBox1.ImageLocation = "https://picsum.photos/id/27/80/80";
+            this.pictureBox1.Location = new System.Drawing.Point(706, 302);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(100, 100);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox1.TabIndex = 4;
+            this.pictureBox1.TabStop = false;
+            // 
             // GameForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.buttonFirstOnBoard);
             this.Controls.Add(this.labelFirstPlayerRes);
             this.Controls.Add(this.labelSecondPlayerRes);
@@ -98,6 +112,7 @@
             this.Name = "GameForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Memory Game";
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -111,5 +126,6 @@
         private System.Windows.Forms.Button buttonFirstOnBoard;
         private System.Windows.Forms.Timer timerShowCards;
         private System.Windows.Forms.Timer timerSwitchTurn;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }

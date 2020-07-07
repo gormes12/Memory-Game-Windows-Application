@@ -8,11 +8,11 @@ using System.Drawing;
 
 namespace MemoryGameForWindows
 {
-    class MemoryBoardButton : Button
+    class MemoryBoardButton : PictureBox
     {
         private int m_RowIndex;
         private int m_ColIndex;
-        private string m_CellText;
+        private string m_CellImageURL;
 
 
         public MemoryBoardButton(int i_RowIndex, int i_ColIndex/*, string i_CellText*/)
@@ -21,15 +21,15 @@ namespace MemoryGameForWindows
             m_ColIndex = i_ColIndex;
             //m_CellText = i_CellText;
         }
-        public string CellText
+        public string CellImageURL
         {
             get
             {
-                return m_CellText;
+                return m_CellImageURL;
             }
             set
             {
-                m_CellText = value;
+                m_CellImageURL = value;
             }
         }
 

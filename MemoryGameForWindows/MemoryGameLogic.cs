@@ -21,7 +21,7 @@ namespace MemoryGameForWindows
         private const int k_MaxNumberColInput = 6;
         private int m_LeftUndiscoveredObjs;
         List<int> m_UnDiscoveredCells;
-        private Dictionary<int, char> m_LettersDictionary;
+        private Dictionary<int, string> m_ImagesDictionary;
         private Board m_BoardGame;
         private Random m_Rand;
         private User m_CurrPlayer;
@@ -242,11 +242,11 @@ namespace MemoryGameForWindows
             }
         }
 
-        public Dictionary<int, char> LetterDictionary
+        public Dictionary<int, string> LetterDictionary
         {
             get
             {
-                return m_LettersDictionary;
+                return m_ImagesDictionary;
             }
         }
 
@@ -274,12 +274,21 @@ namespace MemoryGameForWindows
             }
         }
 
-        private void initLettersDictionary()
+        private void initImagesDictionary()
         {
-            m_LettersDictionary = new Dictionary<int, char>();
+            m_ImagesDictionary = new Dictionary<int, string>();
+            int randomImageID;
+            string beginURL = "https://picsum.photos/id/";
+            string endURL = "/80/80";
+            StringBuilder fullURL;
             for (int i = 0; i < m_BoardGame.NumOfCols * m_BoardGame.NumOfRows / 2; i++)
             {
-                m_LettersDictionary.Add(i, (char)('A' + i));
+                fullURL = new StringBuilder();
+                fullURL.Append(beginURL);
+                randomImageID = m_Rand.Next(1, 999);
+                fullURL.Append(randomImageID.ToString());
+                fullURL.Append(endURL);
+                m_ImagesDictionary.Add(i, fullURL.ToString());
             }
         }
 
@@ -333,7 +342,7 @@ namespace MemoryGameForWindows
                 }
             }
 
-            initLettersDictionary();
+            initImagesDictionary();
         }
 
         private void swap<T>(List<T> io_List, int i_Index1, int i_Index2)

@@ -120,7 +120,8 @@ namespace MemoryGameForWindows
 
         private void M_GameLogic_ComputerNotFoundPair(Point i_ComputerMove)
         {
-            m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].Text = "";
+            m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].Image = null;
+            m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].ImageLocation = null;
             m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].BackColor = DefaultBackColor;
             m_BoardButtons[i_ComputerMove.X, i_ComputerMove.Y].Enabled = true;
         }
@@ -165,11 +166,11 @@ namespace MemoryGameForWindows
 
         private void initializeBoard()
         {
-            char currChar;
+            string currImageURL;
             int boardRow = m_GameLogic.BoardRows;
             int boardCol = m_GameLogic.BoardCols;
             Board boardGame = m_GameLogic.BoardGame;
-            Dictionary<int, char> letterDictionary = m_GameLogic.LetterDictionary;
+            Dictionary<int, string> letterDictionary = m_GameLogic.LetterDictionary;
             if (m_BoardButtons[0, 0] == null)
             {
                 m_BoardButtons[0, 0] = new MemoryBoardButton(0, 0/*, currChar.ToString()*/);
@@ -181,12 +182,15 @@ namespace MemoryGameForWindows
             m_BoardButtons[0, 0].Size = buttonFirstOnBoard.Size;
             m_BoardButtons[0, 0].BackColor = buttonFirstOnBoard.BackColor;
             m_BoardButtons[0, 0].Enabled = true;
+            //m_BoardButtons[0, 0].ImageLocation = "https://picsum.photos/id/237/80/80";
+            m_BoardButtons[0, 0].BorderStyle = BorderStyle.Fixed3D;
+            //m_BoardButtons[0, 0].SizeMode = PictureBoxSizeMode.CenterImage;
             this.Controls.Remove(buttonFirstOnBoard);
             for (int i = 0; i < boardRow; i++)
             {
                 for (int j = 0; j < boardCol; j++)
                 {
-                    if(letterDictionary.TryGetValue(boardGame.BoardGame[i, j].RepresentIndexForObj, out currChar))
+                    if(letterDictionary.TryGetValue(boardGame.BoardGame[i, j].RepresentIndexForObj, out currImageURL))
                     {
                         if (!(i == 0 && j == 0))
                         {
@@ -211,12 +215,12 @@ namespace MemoryGameForWindows
                             m_BoardButtons[i, j].BackColor = m_BoardButtons[0, 0].BackColor;
                             m_BoardButtons[i, j].Enabled = true;
                             m_BoardButtons[i, j].TabStop = false;
+                            m_BoardButtons[i, j].BorderStyle = BorderStyle.Fixed3D;
                         }
 
                         this.Controls.Add(m_BoardButtons[i, j]);
                         m_BoardButtons[i, j].BoardButtonClicked += buttonBoard_Clicked;
-                        m_BoardButtons[i,j].CellText = currChar.ToString();
-                        m_BoardButtons[i, j].Text = "";
+                        m_BoardButtons[i,j].CellImageURL = currImageURL.ToString();
                     }
                 }
             }
@@ -265,7 +269,8 @@ namespace MemoryGameForWindows
 
         private void makeVisibleAndUnClickable(int i_CurrRow, int i_CurrCol)
         {
-            m_BoardButtons[i_CurrRow, i_CurrCol].Text = m_BoardButtons[i_CurrRow, i_CurrCol].CellText;
+            m_BoardButtons[i_CurrRow, i_CurrCol].ImageLocation = m_BoardButtons[i_CurrRow, i_CurrCol].CellImageURL;
+            //m_BoardButtons[i_CurrRow, i_CurrCol].ImageLocation = "https://picsum.photos/id/237/80/80";
             m_BoardButtons[i_CurrRow, i_CurrCol].BackColor = labelCurrentPlayer.BackColor;
             m_BoardButtons[i_CurrRow, i_CurrCol].Enabled = false;
         }
@@ -284,8 +289,8 @@ namespace MemoryGameForWindows
             if (!m_GameLogic.IsSameObject(m_CurrUser, m_FirstBoardClick, m_SecondBoardClick))
             {
                 timerSwitchTurn.Start();
-                m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].Text = "";
-                m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Text = "";
+                m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].Image = null;
+                m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].Image = null;
                 m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].BackColor = DefaultBackColor;
                 m_BoardButtons[m_FirstBoardClick.X, m_FirstBoardClick.Y].BackColor = DefaultBackColor;
                 m_BoardButtons[m_SecondBoardClick.X, m_SecondBoardClick.Y].Enabled = true;
